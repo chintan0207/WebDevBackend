@@ -95,23 +95,33 @@ const verifyUser = async (req, res) => {
   const { token } = req.params;
   if (!token) {
     return res.status(400).json({
+      success: false,
       message: "Invalid token",
     });
   }
 
-  const user = await User.findOne({ verificationToken: token });
-  if (!user) {
-    return res.status(400).json({
-      message: "Invalid token",
+  try {
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid token",
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "User verified",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "User not verified",
     });
   }
-
-  user.isVerified = true;
-  user.verificationToken = undefined;
-  await user.save();
-  res.status(200).json({
-    message: "User verified",
-  });
 };
 
 const login = async (req, res) => {
