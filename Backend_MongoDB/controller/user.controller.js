@@ -170,6 +170,7 @@ const login = async (req, res) => {
     res.cookie("token", token, cookieOptions);
     res.status(200).json({
       message: "Login successful",
+      success: true,
       token,
       user: {
         id: user._id,
